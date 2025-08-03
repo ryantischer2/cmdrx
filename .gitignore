@@ -148,8 +148,9 @@ cmdrx_logs/
 *.sh
 !packaging/**/*.sh
 
-# Packaging artifacts
+# Packaging artifacts (built packages, not source files)
 *.deb
-*.rpm
 *.tar.gz
 *.tar.xz
+# Allow .spec files for RPM packaging
+# *.rpm (commenting out to allow .spec files)
