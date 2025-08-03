@@ -1,0 +1,42 @@
+Source: cmdrx
+Section: admin
+Priority: optional
+Maintainer: CmdRx Team <team@cmdrx.dev>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-all,
+               python3-setuptools,
+               python3-pip
+Standards-Version: 4.6.0
+Homepage: https://github.com/cmdrx/cmdrx
+Vcs-Browser: https://github.com/cmdrx/cmdrx
+Vcs-Git: https://github.com/cmdrx/cmdrx.git
+Rules-Requires-Root: no
+
+Package: cmdrx
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         python3-click (>= 8.0.0),
+         python3-rich (>= 13.0.0),
+         python3-requests (>= 2.28.0),
+         python3-keyring (>= 24.0.0),
+         python3-openai (>= 1.0.0),
+         python3-cryptography (>= 3.4.0),
+         python3-pydantic (>= 2.0.0),
+         python3-textual (>= 0.40.0)
+Description: AI-powered command line troubleshooting tool
+ CmdRx is a command line tool designed to assist IT personnel in analyzing
+ CLI command outputs and providing troubleshooting steps and suggested fixes
+ using artificial intelligence.
+ .
+ Features:
+  * Multiple input modes (standalone and piped)
+  * Support for multiple LLM providers (OpenAI, Anthropic, Grok, custom)
+  * Secure credential storage using system keyring
+  * Detailed logging and automated fix script generation
+  * Text-based configuration interface
+ .
+ This tool helps system administrators quickly diagnose and resolve issues
+ with Linux commands and services by leveraging the power of large language
+ models.

@@ -1,0 +1,11 @@
+{
+  "llm_provider": "openai",
+  "llm_model": "gpt-4",
+  "llm_base_url": "https://api.openai.com/v1",
+  "llm_auth_type": "api_key",
+  "llm_timeout": 30,
+  "log_directory": "~/cmdrx_logs",
+  "verbose": false,
+  "auto_fix_scripts": true,
+  "command_timeout": 30
+}

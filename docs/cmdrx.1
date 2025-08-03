@@ -1,0 +1,185 @@
+.TH CMDRX 1 "December 2024" "CmdRx 0.1.0" "User Commands"
+.SH NAME
+cmdrx \- AI-powered command line troubleshooting tool
+.SH SYNOPSIS
+.B cmdrx
+[\fIOPTIONS\fR] [\fICOMMAND\fR...]
+.br
+.B command
+|
+.B cmdrx
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+.B CmdRx
+is a command line tool designed to assist IT personnel in analyzing CLI command outputs and providing troubleshooting steps and suggested fixes using artificial intelligence.
+
+CmdRx supports multiple LLM providers including OpenAI, Anthropic Claude, Grok, and custom on-premises solutions. It can operate in two modes: standalone mode where it executes commands directly, or piped mode where it analyzes output from other commands.
+
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config
+Open the text-based configuration interface to set up LLM providers and credentials.
+.TP
+.BR \-v ", " \-\-verbose
+Enable verbose output showing detailed information about the analysis process.
+.TP
+.BR \-\-version
+Show version information and exit.
+.TP
+.BR \-\-log\-dir " " \fIPATH\fR
+Override the default log directory for output files.
+.TP
+.BR \-\-dry\-run
+Analyze command output without creating fix scripts.
+.TP
+.BR \-h ", " \-\-help
+Show help message and exit.
+
+.SH USAGE MODES
+.SS Standalone Mode
+In standalone mode, CmdRx executes the specified command and analyzes its output:
+
+.nf
+.B cmdrx systemctl status httpd
+.B cmdrx journalctl -xe
+.B cmdrx docker ps -a
+.fi
+
+.SS Piped Mode
+In piped mode, CmdRx analyzes output piped from another command:
+
+.nf
+.B systemctl status httpd | cmdrx
+.B journalctl -xe | cmdrx
+.B docker logs container-name | cmdrx
+.fi
+
+.SH CONFIGURATION
+Before using CmdRx, you must configure an LLM provider:
+
+.nf
+.B cmdrx --config
+.fi
+
+This opens a text-based interface where you can:
+.IP \(bu 4
+Select an LLM provider (OpenAI, Anthropic, Grok, or custom)
+.IP \(bu 4
+Enter API credentials securely
+.IP \(bu 4
+Configure output directories and preferences
+.IP \(bu 4
+Test your configuration
+
+.SH LLM PROVIDERS
+.SS OpenAI
+Supports GPT models including GPT-4 and GPT-3.5-turbo. Requires an OpenAI API key.
+
+.SS Anthropic Claude
+Supports Claude models including Claude-3 variants. Requires an Anthropic API key.
+
+.SS Grok (xAI)
+Supports Grok models from xAI. Requires an xAI API key.
+
+.SS Custom/On-Premises
+Supports any OpenAI-compatible API endpoint, including:
+.IP \(bu 4
+Ollama running locally
+.IP \(bu 4
+LocalAI deployments
+.IP \(bu 4
+Custom LLM endpoints
+
+.SH OUTPUT FILES
+CmdRx generates several types of output files in the configured log directory (default: ~/cmdrx_logs/):
+
+.SS Log Files
+.B cmdrx_analysis_YYYYMMDD_HHMMSS.log
+.br
+Complete analysis logs including system information, command output, and AI response.
+
+.SS Fix Scripts
+.B cmdrx_fix_YYYYMMDD_HHMMSS.sh
+.br
+Executable bash scripts containing suggested fixes with safety confirmations.
+
+.SH CONFIGURATION FILES
+.TP
+.B ~/.config/cmdrx/config.json
+Main configuration file containing LLM provider settings and preferences.
+.TP
+.B System Keyring
+API keys and credentials are stored securely in the system keyring (GNOME Keyring on Linux, Keychain on macOS).
+
+.SH EXAMPLES
+.SS Basic Troubleshooting
+Analyze a failed service:
+.nf
+.B cmdrx systemctl status apache2
+.fi
+
+.SS Log Analysis
+Analyze system logs:
+.nf
+.B cmdrx journalctl -u apache2 -n 50
+.fi
+
+.SS Docker Troubleshooting
+Analyze container issues:
+.nf
+.B docker logs my-container | cmdrx
+.fi
+
+.SS Network Diagnostics
+Analyze network connectivity:
+.nf
+.B ping -c 5 google.com | cmdrx
+.fi
+
+.SH SECURITY CONSIDERATIONS
+.IP \(bu 4
+API keys are stored securely in the system keyring, never in plain text
+.IP \(bu 4
+All remote API communications use HTTPS encryption
+.IP \(bu 4
+Generated fix scripts include safety confirmations and risk warnings
+.IP \(bu 4
+CmdRx never executes fixes automatically - user approval is always required
+
+.SH FILES
+.TP
+.B ~/.config/cmdrx/config.json
+Configuration file
+.TP
+.B ~/cmdrx_logs/
+Default directory for log files and fix scripts
+
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+General error (configuration, LLM, or input error)
+
+.SH ENVIRONMENT
+.TP
+.B CMDRX_CONFIG_DIR
+Override default configuration directory
+.TP
+.B CMDRX_LOG_DIR
+Override default log directory
+
+.SH BUGS
+Report bugs at: https://github.com/cmdrx/cmdrx/issues
+
+.SH AUTHORS
+CmdRx Team <team@cmdrx.dev>
+
+.SH COPYRIGHT
+Copyright (C) 2024 CmdRx Team. This is free software; see the source for copying conditions.
+
+.SH SEE ALSO
+.BR systemctl (1),
+.BR journalctl (1),
+.BR docker (1)

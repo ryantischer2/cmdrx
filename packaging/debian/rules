@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf build/
+	rm -rf src/*.egg-info/
+
+override_dh_auto_install:
+	dh_auto_install
+	# Install man page
+	mkdir -p debian/cmdrx/usr/share/man/man1
+	gzip -c docs/cmdrx.1 > debian/cmdrx/usr/share/man/man1/cmdrx.1.gz
+
+override_dh_installsystemd:
+	# No systemd services to install
