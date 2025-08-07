@@ -5,7 +5,7 @@ A command line utility that analyzes CLI command outputs and provides
 troubleshooting steps and suggested fixes using AI/LLM services.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "CmdRx Team"
 __email__ = "team@cmdrx.dev"
 
