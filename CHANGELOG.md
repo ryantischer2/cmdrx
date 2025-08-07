@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-01-06
+
 ### Added
 - Multiple API key storage methods with automatic fallback:
   - System keyring (primary method)
@@ -21,11 +23,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic fallback when keyring is unavailable
 - Improved documentation with comprehensive setup guides
 - Enhanced troubleshooting section in README
+- Updated all repository URLs to correct GitHub location
 
 ### Security
 - Credentials file automatically secured with restrictive permissions (600)
 - Multiple secure storage options for different environments
 - No credentials exposed in logs or configuration files
+
+### Fixed
+- Keyring compatibility issues across different systems
+- Configuration errors when system keyring is unavailable
+- Missing fallback options for credential storage
 
 ## [0.1.0] - 2024-12-01
 
@@ -60,5 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation to prevent injection attacks
 - Generated fix scripts include safety warnings
 
-[Unreleased]: https://github.com/ryantischer2/cmdrx/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ryantischer2/cmdrx/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ryantischer2/cmdrx/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ryantischer2/cmdrx/releases/tag/v0.1.0
