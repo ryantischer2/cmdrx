@@ -232,10 +232,25 @@ CmdRx will search for credentials in this order:
 
 #### Setting Up API Keys
 
-**Option A: Interactive Configuration (Recommended)**
+**Option A: Interactive Configuration with Storage Choice (Recommended)**
 ```bash
 cmdrx --config
 ```
+
+When configuring an API key, CmdRx will present you with storage method options:
+
+| **Option** | **Method** | **Security** | **Best For** |
+|------------|------------|--------------|--------------|
+| **1** | System Keyring | High | Desktop users, single-user systems |
+| **2** | Environment Variable | Medium | Development, CI/CD, automation |
+| **3** | Credentials File | Medium | Manual management, shared systems |
+
+The interface will:
+- Show available storage methods for your system
+- Display security levels for each method
+- Provide setup instructions for your chosen method
+- Automatically secure file permissions (if using file storage)
+- Fall back to alternative methods if the preferred method fails
 
 **Option B: Environment Variables (Quick Setup)**
 ```bash

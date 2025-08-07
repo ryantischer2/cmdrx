@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Storage method selection in configuration interface (`cmdrx --config`)
+- Interactive choice between keyring, environment variables, and credentials file
+- Security level indicators for each storage method
+- Setup instructions for chosen storage method
+- Automatic fallback when preferred storage method fails
+
+### Enhanced
+- Configuration interface now shows available storage methods
+- Better user experience with clear storage options
+- Improved guidance for different use cases (desktop, CI/CD, development)
+
 ## [0.2.0] - 2025-01-06
 
 ### Added

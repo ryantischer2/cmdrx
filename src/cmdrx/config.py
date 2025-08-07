@@ -147,7 +147,7 @@ class ConfigManager:
         
         console.print(f"\n[bold]Configuring {provider['name']}[/bold]")
         
-        # Get API key
+        # Get API key with storage method choice
         current_key = self._get_credential(f"{provider_id}_api_key")
         key_prompt = "API Key"
         if current_key:
@@ -155,7 +155,8 @@ class ConfigManager:
         
         api_key = Prompt.ask(key_prompt, password=True)
         if api_key:
-            self._store_credential(f"{provider_id}_api_key", api_key)
+            storage_method = self._choose_storage_method(f"{provider_id}_api_key")
+            self._store_credential_with_method(f"{provider_id}_api_key", api_key, storage_method)
         
         # Get model (optional override)
         current_model = self._config.get('llm_model', provider['default_model'])
@@ -213,7 +214,8 @@ class ConfigManager:
             
             credential = Prompt.ask(cred_prompt, password=True)
             if credential:
-                self._store_credential(cred_key, credential)
+                storage_method = self._choose_storage_method(cred_key)
+                self._store_credential_with_method(cred_key, credential, storage_method)
         
         # Request timeout
         timeout = Prompt.ask(
@@ -481,3 +483,118 @@ class ConfigManager:
                     credentials['bearer_token'] = token
         
         return credentials
+    
+    def _choose_storage_method(self, key_name: str) -> str:
+        """Let user choose storage method for credentials."""
+        console.print(f"\n[bold]Choose storage method for {key_name}:[/bold]")
+        
+        # Check which methods are available
+        methods = []
+        descriptions = []
+        
+        # Test keyring availability
+        try:
+            import keyring
+            keyring.get_keyring()
+            methods.append('keyring')
+            descriptions.append("System Keyring (most secure - macOS Keychain, Windows Credential Store, Linux Secret Service)")
+        except Exception:
+            pass
+        
+        # Environment variables (always available)
+        methods.append('environment')
+        descriptions.append("Environment Variable (good for development and CI/CD)")
+        
+        # Credentials file (always available)
+        methods.append('file')
+        descriptions.append("Credentials File (manual management, stored in ~/.config/cmdrx/)")
+        
+        # Show options
+        table = Table(title="Storage Method Options")
+        table.add_column("Option", style="cyan")
+        table.add_column("Method", style="green") 
+        table.add_column("Description", style="white")
+        table.add_column("Security", style="yellow")
+        
+        security_levels = {
+            'keyring': 'High',
+            'environment': 'Medium',
+            'file': 'Medium'
+        }
+        
+        for i, method in enumerate(methods, 1):
+            table.add_row(
+                str(i), 
+                method.replace('_', ' ').title(),
+                descriptions[i-1][:80] + ("..." if len(descriptions[i-1]) > 80 else ""),
+                security_levels[method]
+            )
+        
+        console.print(table)
+        
+        # Get user choice
+        choice = Prompt.ask(
+            "Select storage method",
+            choices=[str(i) for i in range(1, len(methods) + 1)],
+            default='1'
+        )
+        
+        selected_method = methods[int(choice) - 1]
+        console.print(f"[green]Selected: {selected_method.replace('_', ' ').title()}[/green]")
+        
+        if selected_method == 'environment':
+            env_var = f"CMDRX_{key_name.upper()}"
+            console.print(f"[dim]Set environment variable: export {env_var}='your-api-key'[/dim]")
+        elif selected_method == 'file':
+            creds_path = self.config_dir / 'credentials.json'
+            console.print(f"[dim]Credentials will be stored in: {creds_path}[/dim]")
+        
+        return selected_method
+    
+    def _store_credential_with_method(self, key: str, value: str, method: str) -> None:
+        """Store credential using specified method."""
+        if method == 'keyring':
+            try:
+                keyring.set_password(self.SERVICE_NAME, key, value)
+                console.print(f"[green]✓ Stored '{key}' in system keyring[/green]")
+                return
+            except Exception as e:
+                console.print(f"[yellow]Keyring storage failed: {e}[/yellow]")
+                console.print("[yellow]Falling back to credentials file...[/yellow]")
+                method = 'file'  # Fallback to file
+        
+        if method == 'environment':
+            env_var = f"CMDRX_{key.upper()}"
+            console.print(f"[yellow]Note: You need to set this environment variable manually:[/yellow]")
+            console.print(f"[dim]export {env_var}='{value}'[/dim]")
+            console.print(f"[dim]Add this to your shell profile (~/.bashrc, ~/.zshrc, etc.) to make it permanent[/dim]")
+            console.print(f"[green]✓ Instructions provided for '{key}' environment variable[/green]")
+            return
+        
+        if method == 'file':
+            # Fallback to credentials file
+            creds_file = self.config_dir / 'credentials.json'
+            
+            # Load existing credentials
+            creds = {}
+            if creds_file.exists():
+                try:
+                    with open(creds_file, 'r') as f:
+                        creds = json.load(f)
+                except Exception:
+                    pass
+            
+            # Add new credential
+            creds[key] = value
+            
+            # Save with restricted permissions
+            try:
+                with open(creds_file, 'w') as f:
+                    json.dump(creds, f, indent=2)
+                
+                # Set file permissions to be readable only by owner
+                os.chmod(creds_file, 0o600)
+                console.print(f"[green]✓ Stored '{key}' in credentials file[/green]")
+                console.print(f"[dim]File: {creds_file}[/dim]")
+            except Exception as e:
+                raise SecurityError(f"Failed to store credential '{key}': {e}")
