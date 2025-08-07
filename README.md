@@ -182,10 +182,72 @@ Configuration is stored in `~/.config/cmdrx/config.json`:
 
 ### Secure Credential Storage
 
-API keys and tokens are stored securely using the system keyring:
-- **Linux**: Uses Secret Service (GNOME Keyring, KWallet)
-- **macOS**: Uses Keychain
-- **Windows**: Uses Windows Credential Store
+CmdRx offers multiple secure methods for storing API keys and tokens:
+
+#### Method 1: System Keyring (Preferred)
+- **Linux**: Secret Service (GNOME Keyring, KWallet)
+- **macOS**: Keychain
+- **Windows**: Windows Credential Store
+- **Setup**: Use `cmdrx --config` to store credentials securely
+
+#### Method 2: Environment Variables
+Perfect for development and CI/CD environments:
+```bash
+# OpenAI
+export CMDRX_OPENAI_API_KEY="sk-your-openai-key"
+
+# Anthropic Claude
+export CMDRX_ANTHROPIC_API_KEY="sk-ant-your-claude-key"
+
+# Grok (xAI)
+export CMDRX_GROK_API_KEY="xai-your-grok-key"
+
+# Custom providers
+export CMDRX_CUSTOM_API_KEY="your-custom-key"
+export CMDRX_CUSTOM_BEARER_TOKEN="your-bearer-token"
+```
+
+#### Method 3: Credentials File
+For manual credential management:
+```bash
+# Create secure credentials file
+mkdir -p ~/.config/cmdrx
+cat > ~/.config/cmdrx/credentials.json << 'EOF'
+{
+  "openai_api_key": "sk-your-openai-key",
+  "anthropic_api_key": "sk-ant-your-claude-key",
+  "grok_api_key": "xai-your-grok-key"
+}
+EOF
+
+# Secure the file (owner-only access)
+chmod 600 ~/.config/cmdrx/credentials.json
+```
+
+#### Priority Order
+CmdRx will search for credentials in this order:
+1. System keyring
+2. Environment variables (`CMDRX_*`)
+3. Credentials file (`~/.config/cmdrx/credentials.json`)
+
+#### Setting Up API Keys
+
+**Option A: Interactive Configuration (Recommended)**
+```bash
+cmdrx --config
+```
+
+**Option B: Environment Variables (Quick Setup)**
+```bash
+# Add to your shell profile (~/.bashrc, ~/.zshrc, etc.)
+echo 'export CMDRX_OPENAI_API_KEY="sk-your-actual-key"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Option C: One-time Usage**
+```bash
+CMDRX_OPENAI_API_KEY="sk-your-key" cmdrx your-command
+```
 
 ## Command Line Options
 
@@ -218,11 +280,14 @@ CmdRx generates several types of output files:
 
 ## Security Considerations
 
-- **Credential Storage**: API keys stored in system keyring, never in plain text
+- **Credential Storage**: Multiple secure options (system keyring, environment variables, encrypted file)
+- **File Permissions**: Credentials files automatically secured with `chmod 600` (owner-only access)
+- **No Plain Text**: API keys never stored in configuration files or logs
 - **Input Validation**: Commands are validated to prevent injection attacks
 - **Fix Scripts**: Generated with safety confirmations and warnings
 - **HTTPS**: All remote API calls use HTTPS encryption
 - **No Auto-Execution**: Fixes require explicit user approval
+- **Fallback Security**: If keyring fails, secure alternatives are available
 
 ## Troubleshooting
 
@@ -235,8 +300,29 @@ cmdrx --config  # Run configuration wizard
 
 **API Key Issues**
 ```bash
-cmdrx --config  # Re-enter credentials
-cmdrx --verbose systemctl status  # Check detailed error messages
+# Method 1: Interactive configuration
+cmdrx --config
+
+# Method 2: Environment variable (quick fix)
+export CMDRX_OPENAI_API_KEY="sk-your-key"
+
+# Method 3: Check which credential source is being used
+cmdrx --verbose echo "test"  # Shows credential source in output
+
+# Method 4: Verify credential file
+ls -la ~/.config/cmdrx/credentials.json
+```
+
+**Keyring Problems**
+If system keyring is unavailable, CmdRx automatically falls back to:
+```bash
+# Use environment variables instead
+export CMDRX_OPENAI_API_KEY="sk-your-key"
+
+# Or create credentials file
+mkdir -p ~/.config/cmdrx
+echo '{"openai_api_key": "sk-your-key"}' > ~/.config/cmdrx/credentials.json
+chmod 600 ~/.config/cmdrx/credentials.json
 ```
 
 **Connection Problems**

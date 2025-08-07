@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Multiple API key storage methods with automatic fallback:
+  - System keyring (primary method)
+  - Environment variables (`CMDRX_*`)
+  - Credentials file (`~/.config/cmdrx/credentials.json`)
+- Enhanced credential retrieval with priority order
+- Improved error handling for keyring failures
+- Better verbose output showing credential source
+
+### Enhanced
+- Configuration system now supports multiple credential sources
+- Automatic fallback when keyring is unavailable
+- Improved documentation with comprehensive setup guides
+- Enhanced troubleshooting section in README
+
+### Security
+- Credentials file automatically secured with restrictive permissions (600)
+- Multiple secure storage options for different environments
+- No credentials exposed in logs or configuration files
+
 ## [0.1.0] - 2024-12-01
 
 ### Added

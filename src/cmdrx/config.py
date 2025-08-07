@@ -387,20 +387,78 @@ class ConfigManager:
             raise ConfigurationError(f"Failed to save configuration: {e}")
     
     def _store_credential(self, key: str, value: str) -> None:
-        """Store credential securely using keyring."""
+        """Store credential securely using multiple methods."""
+        # Try keyring first
         try:
             keyring.set_password(self.SERVICE_NAME, key, value)
+            console.print(f"[green]✓ Stored '{key}' in system keyring[/green]")
+            return
+        except Exception as e:
+            console.print(f"[yellow]Keyring storage failed: {e}[/yellow]")
+        
+        # Fallback to credentials file
+        console.print("[yellow]Falling back to credentials file...[/yellow]")
+        creds_file = self.config_dir / 'credentials.json'
+        
+        # Load existing credentials
+        creds = {}
+        if creds_file.exists():
+            try:
+                with open(creds_file, 'r') as f:
+                    creds = json.load(f)
+            except Exception:
+                pass
+        
+        # Add new credential
+        creds[key] = value
+        
+        # Save with restricted permissions
+        try:
+            with open(creds_file, 'w') as f:
+                json.dump(creds, f, indent=2)
+            
+            # Set file permissions to be readable only by owner
+            os.chmod(creds_file, 0o600)
+            console.print(f"[green]✓ Stored '{key}' in credentials file[/green]")
+            console.print(f"[dim]File: {creds_file}[/dim]")
         except Exception as e:
             raise SecurityError(f"Failed to store credential '{key}': {e}")
     
     def _get_credential(self, key: str) -> Optional[str]:
-        """Retrieve credential securely using keyring."""
+        """Retrieve credential using multiple fallback methods."""
+        # Method 1: Try keyring first
         try:
-            return keyring.get_password(self.SERVICE_NAME, key)
+            credential = keyring.get_password(self.SERVICE_NAME, key)
+            if credential:
+                return credential
         except Exception as e:
             if self._config.get('verbose', False):
-                console.print(f"[yellow]Warning: Could not retrieve credential '{key}': {e}[/yellow]")
-            return None
+                console.print(f"[yellow]Keyring unavailable for '{key}': {e}[/yellow]")
+        
+        # Method 2: Try environment variables
+        env_var = f"CMDRX_{key.upper()}"
+        credential = os.getenv(env_var)
+        if credential:
+            if self._config.get('verbose', False):
+                console.print(f"[green]Using environment variable {env_var}[/green]")
+            return credential
+        
+        # Method 3: Try credentials file
+        creds_file = self.config_dir / 'credentials.json'
+        if creds_file.exists():
+            try:
+                with open(creds_file, 'r') as f:
+                    creds = json.load(f)
+                credential = creds.get(key)
+                if credential:
+                    if self._config.get('verbose', False):
+                        console.print(f"[green]Using credentials file for '{key}'[/green]")
+                    return credential
+            except Exception as e:
+                if self._config.get('verbose', False):
+                    console.print(f"[yellow]Could not read credentials file: {e}[/yellow]")
+        
+        return None
     
     def get_llm_credentials(self) -> Dict[str, str]:
         """Get LLM credentials for the configured provider."""
