@@ -27,7 +27,7 @@ pip install cmdrx
 ### From Source
 
 ```bash
-git clone https://github.com/cmdrx/cmdrx.git
+git clone https://github.com/ryantischer2/cmdrx.git
 cd cmdrx
 pip install -e .
 ```
@@ -351,7 +351,7 @@ cat ~/cmdrx_logs/cmdrx_analysis_*.log
 ### Setting Up Development Environment
 
 ```bash
-git clone https://github.com/cmdrx/cmdrx.git
+git clone https://github.com/ryantischer2/cmdrx.git
 cd cmdrx
 pip install -e ".[dev]"
 ```
@@ -389,8 +389,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - **Documentation**: [cmdrx.readthedocs.io](https://cmdrx.readthedocs.io)
-- **Issues**: [GitHub Issues](https://github.com/cmdrx/cmdrx/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/cmdrx/cmdrx/discussions)
+- **Issues**: [GitHub Issues](https://github.com/ryantischer2/cmdrx/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ryantischer2/cmdrx/discussions)
 
 ## Changelog
 

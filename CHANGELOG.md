@@ -60,5 +60,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Input validation to prevent injection attacks
 - Generated fix scripts include safety warnings
 
-[Unreleased]: https://github.com/cmdrx/cmdrx/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/cmdrx/cmdrx/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ryantischer2/cmdrx/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ryantischer2/cmdrx/releases/tag/v0.1.0
